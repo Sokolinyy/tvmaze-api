@@ -1,0 +1,34 @@
+header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: auto auto;
+  text-align: center;
+  width: 100%;
+}
+
+#resultList {
+  padding: 20px;
+  width: 100%;
+}
+
+#resultList a {
+  text-decoration: none;
+}
+
+#episodeList {
+  list-style: none;
+  padding: 0;
+  text-decoration: none;
+
+}
+
+#episodeList li {
+  padding: 20px;
+  width: 100%;
+}
+
+.season {
+  color: red;
+}

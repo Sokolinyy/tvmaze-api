@@ -21,7 +21,8 @@ function searchShow(query) {
       return {
         name: element.show.name,
         id: element.show.id,
-        image: element.show.image.medium
+        image: element.show.image.medium,
+        rating: element.show.rating.average
       }
     })
 
@@ -38,29 +39,38 @@ function searchShow(query) {
   })
 }
 
-/* function infoAboutShow(result) {
-  const urlEpisodeList = `https://api.tvmaze.com/shows/${result.id}/episodes`
-  
-} */
-
 // Function for rendering result of fetch, on the page
 function renderResults(results) {
   const list = document.getElementById("resultList")
   list.innerHTML = ""
 
+  // Loop through result, then take result id, for display episode list on the page
   results.forEach(result => {
     const link = document.createElement("a")
     link.href = `https://api.tvmaze.com/shows/${result.id}/episodes`
 
+    // Creating element <li> which will place into <a> tag, on const link
     const element = document.createElement("li")
     element.innerText = result.name
     link.appendChild(element)
     list.appendChild(link)
 
-    link.addEventListener("click", (event) => {
-      event.preventDefault()
+    link.style.width = "fit-content"
+    link.style.display = "block"
+    link.style.listStyle = "none"
 
-      fetch(link.href)
+    // When user click on link result of search, 
+    // then fetch "Show episode list" from TV MAZE API
+    link.addEventListener("click", (event) => {
+      // Prevent default behavior of clicks
+      event.preventDefault()
+      renderListEpisode(link, result, list)
+    })
+  })
+}
+
+function renderListEpisode(link, result, list) {
+fetch(link.href)
       .then((response) => {
         if (response.ok) {
           return response.json()
@@ -70,20 +80,35 @@ function renderResults(results) {
         }
       })
       .then(jsonData => {
-
-        const episodeList = document.createElement("ul")
+        // <ul> element for displaying episode list
+        const episodeList = document.getElementById("episodeList")
+        // Loop through jsonData and take all the value, like name, id and etc
         for (let i = 0; i < jsonData.length; i++) {
           const episode = jsonData[i]
-          const episodeItem = document.createElement("li")
-          episodeItem.innerText = `${episode.name} - Season ${episode.season} Episode ${episode.number} Episode Date ${episode.airdate}`
+          // Create <li> elements and put info which takes from jsonData
+          const episodeItem = document.createElement("li");
+          const season = episode.season;
+          episodeItem.innerHTML = `Name of Episode: ${episode.name}
+          <p class="season">Season: ${season}</p>
+          <p class="episode-number">Episode: ${episode.number}</p>
+          <p class="episode-date">Release Date: ${episode.airdate}</p>
+          `;
+          
+          // add styles to episodeItem
+          episodeItem.style.backgroundColor = "#f2f2f2";
+          episodeItem.style.border = "1px solid black";
+          
+          // add styles to season variable
+          // Render episodeList on the page
           episodeList.appendChild(episodeItem)
+          link.appendChild(episodeList)
         }
-        link.appendChild(episodeList)
       })
       .catch(error => {
         console.error(error)
       })
 
+    // 
     const name = document.createElement("h2")
     name.innerText = result.name
     link.appendChild(name)
@@ -95,14 +120,7 @@ function renderResults(results) {
     list.appendChild(link)
 
     console.log(result);
-
-    link.addEventListener("click", (event) => {
-      event.preventDefault()
-      })
-    })
-  })
 }
-
 
 let searchTimeoutToken = 0;
 

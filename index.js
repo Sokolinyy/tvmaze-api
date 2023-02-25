@@ -17,6 +17,7 @@ function searchShow(query) {
   // Loop through jsonData and if everything if ok, 
   // display name of TV show in <ul> of renderResult function
   .then((jsonData) => {
+    console.log(jsonData);
     const results = jsonData.map(element => {
       return {
         name: element.show.name,
@@ -47,6 +48,7 @@ function renderResults(results) {
   // Loop through result, then take result id, for display episode list on the page
   results.forEach(result => {
     const link = document.createElement("a")
+
     link.href = `https://api.tvmaze.com/shows/${result.id}/episodes`
 
     // Creating element <li> which will place into <a> tag, on const link
@@ -58,12 +60,14 @@ function renderResults(results) {
     link.style.width = "fit-content"
     link.style.display = "block"
     link.style.listStyle = "none"
+    link.style.margin = "auto"
 
     // When user click on link result of search, 
     // then fetch "Show episode list" from TV MAZE API
     link.addEventListener("click", (event) => {
       // Prevent default behavior of clicks
       event.preventDefault()
+      list.innerText = ""
       renderListEpisode(link, result, list)
     })
   })
@@ -87,11 +91,11 @@ fetch(link.href)
           const episode = jsonData[i]
           // Create <li> elements and put info which takes from jsonData
           const episodeItem = document.createElement("li");
-          const season = episode.season;
-          episodeItem.innerHTML = `Name of Episode: ${episode.name}
-          <p class="season">Season: ${season}</p>
-          <p class="episode-number">Episode: ${episode.number}</p>
-          <p class="episode-date">Release Date: ${episode.airdate}</p>
+          episodeItem.innerHTML = `
+          <p class="name">Episode Name:<br><br> ${episode.name}</p>
+          <p class="season">Season:<br><br> ${episode.season}</p>
+          <p class="episode-number">Episode:<br><br> ${episode.number}</p>
+          <p class="episode-date">Release Date:<br><br> ${episode.airdate}</p>
           `;
           
           // add styles to episodeItem
@@ -101,15 +105,15 @@ fetch(link.href)
           // add styles to season variable
           // Render episodeList on the page
           episodeList.appendChild(episodeItem)
-          link.appendChild(episodeList)
         }
       })
       .catch(error => {
         console.error(error)
       })
 
-    // 
+    // Just some elements for design
     const name = document.createElement("h2")
+    name.setAttribute("id", "name")
     name.innerText = result.name
     link.appendChild(name)
 
@@ -125,14 +129,22 @@ fetch(link.href)
 let searchTimeoutToken = 0;
 
 window.onload = () => {
+  const episodeList = document.getElementById("episodeList")
+
   const searchFieldElement = document.getElementById("searchField")
   searchFieldElement.onkeyup = (event) => {
 
     clearTimeout(searchTimeoutToken)
 
-    // If value in input above zero length, return name of TV show
+    // If value in input above zero length, 
+    // immediately check for empty string with setTimeout to zero
+    // and clear all the search result
     if (searchFieldElement.value.trim().length === 0) {
-      return;
+      searchTimeoutToken = setTimeout(() => {
+        searchShow(searchFieldElement.value)
+      }, 0)
+
+      episodeList.innerText = ""
     }
 
     // Display result of search only if delay of typing above 1 second,
